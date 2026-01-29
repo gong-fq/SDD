@@ -404,6 +404,36 @@
       color: var(--light);
     }
 
+    .lang-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .lang-btn {
+      padding: 6px 12px;
+      background: rgba(15, 76, 117, 0.3);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .lang-btn:hover {
+      background: rgba(15, 76, 117, 0.5);
+      border-color: var(--highlight);
+    }
+
+    .lang-btn.active {
+      background: var(--highlight);
+      border-color: var(--light);
+      color: white;
+    }
+
     .input-group {
       display: flex;
       gap: 10px;
@@ -536,7 +566,6 @@
   <div class="container">
     <header>
       <h1>SDD 规格驱动开发学院</h1>
-      <p>天津财经大学统计学院教授  龚凤乾</p>
       <p class="subtitle">Spec-Driven Development · 从需求到实现的系统化方法论</p>
     </header>
 
@@ -1507,14 +1536,19 @@ Step 3: 验证与迭代
   <div class="ai-assistant">
     <button class="ai-toggle" onclick="toggleAI()">🤖</button>
     <div class="ai-panel" id="aiPanel">
-      <h3>SDD智能助教</h3>
+      <h3>SDD智能助教 / AI Teaching Assistant</h3>
+      <div class="lang-selector">
+        <button class="lang-btn active" data-lang="auto" onclick="setLanguage('auto')">🌐 自动检测</button>
+        <button class="lang-btn" data-lang="zh" onclick="setLanguage('zh')">🇨🇳 中文</button>
+        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">🇺🇸 English</button>
+      </div>
       <div class="input-group">
-        <input type="text" id="userInput" placeholder="输入问题或点击语音...">
+        <input type="text" id="userInput" placeholder="输入问题或点击语音... / Type your question or use voice...">
         <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
         <button class="send-btn" onclick="sendMessage()">📤</button>
       </div>
-      <div id="aiResponse">我是你的SDD助教！有任何疑问随时问我 😊</div>
-      <button class="tts-btn" id="ttsBtn" onclick="speakResponse()">🔊 朗读回答</button>
+      <div id="aiResponse">我是你的SDD助教！有任何疑问随时问我 😊<br>I'm your SDD teaching assistant! Feel free to ask me anything 😊</div>
+      <button class="tts-btn" id="ttsBtn" onclick="speakResponse()">🔊 朗读回答 / Read Aloud</button>
     </div>
   </div>
 
@@ -1554,6 +1588,25 @@ Step 3: 验证与迭代
     let isRecording = false;
     let recognition = null;
     let currentResponse = '';
+    let currentLanguage = 'auto'; // 'auto', 'zh', 'en'
+    let detectedLanguage = 'zh'; // 存储检测到的语言
+
+    // 设置语言
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+      
+      // 更新语音识别语言
+      if (recognition) {
+        if (lang === 'zh' || (lang === 'auto' && detectedLanguage === 'zh')) {
+          recognition.lang = 'zh-CN';
+        } else if (lang === 'en' || (lang === 'auto' && detectedLanguage === 'en')) {
+          recognition.lang = 'en-US';
+        }
+      }
+    }
 
     function toggleAI() {
       isAIOpen = !isAIOpen;
@@ -1564,19 +1617,27 @@ Step 3: 验证与迭代
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       recognition = new SpeechRecognition();
-      recognition.lang = 'zh-CN';
+      recognition.lang = 'zh-CN'; // 默认中文
       recognition.continuous = false;
       recognition.interimResults = false;
 
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         document.getElementById('userInput').value = transcript;
+        
+        // 检测输入语言
+        const hasChinese = /[\u4e00-\u9fa5]/.test(transcript);
+        detectedLanguage = hasChinese ? 'zh' : 'en';
+        
         sendMessage();
       };
 
       recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
-        alert('语音识别失败：' + event.error);
+        const errorMsg = detectedLanguage === 'zh' 
+          ? '语音识别失败：' + event.error
+          : 'Speech recognition failed: ' + event.error;
+        alert(errorMsg);
         stopRecording();
       };
 
@@ -1587,13 +1648,26 @@ Step 3: 验证与迭代
 
     function toggleVoice() {
       if (!recognition) {
-        alert('您的浏览器不支持语音识别功能，请使用Chrome浏览器');
+        const msg = detectedLanguage === 'zh'
+          ? '您的浏览器不支持语音识别功能，请使用Chrome浏览器'
+          : 'Your browser does not support speech recognition. Please use Chrome browser.';
+        alert(msg);
         return;
       }
 
       if (isRecording) {
         recognition.stop();
       } else {
+        // 根据当前语言设置识别语言
+        if (currentLanguage === 'zh') {
+          recognition.lang = 'zh-CN';
+        } else if (currentLanguage === 'en') {
+          recognition.lang = 'en-US';
+        } else {
+          // 自动模式下默认使用上次检测的语言
+          recognition.lang = detectedLanguage === 'zh' ? 'zh-CN' : 'en-US';
+        }
+        
         recognition.start();
         isRecording = true;
         document.getElementById('voiceBtn').classList.add('recording');
@@ -1613,8 +1687,14 @@ Step 3: 验证与迭代
       
       if (!message) return;
 
+      // 检测消息语言
+      const hasChinese = /[\u4e00-\u9fa5]/.test(message);
+      const messageLanguage = hasChinese ? 'zh' : 'en';
+      detectedLanguage = messageLanguage;
+
       const responseDiv = document.getElementById('aiResponse');
-      responseDiv.textContent = '思考中...';
+      const thinkingText = messageLanguage === 'zh' ? '思考中...' : 'Thinking...';
+      responseDiv.textContent = thinkingText;
       document.getElementById('ttsBtn').classList.remove('active');
 
       try {
@@ -1625,11 +1705,22 @@ Step 3: 验证与迭代
         });
 
         const data = await response.json();
-        currentResponse = data.reply || '抱歉，我暂时无法回答这个问题。';
+        currentResponse = data.reply || (messageLanguage === 'zh' 
+          ? '抱歉，我暂时无法回答这个问题。' 
+          : 'Sorry, I cannot answer this question at the moment.');
+        
+        // 存储返回的语言信息
+        if (data.language) {
+          detectedLanguage = data.language;
+        }
+        
         responseDiv.textContent = currentResponse;
         document.getElementById('ttsBtn').classList.add('active');
       } catch (error) {
-        responseDiv.textContent = '网络错误，请稍后重试。';
+        const errorText = messageLanguage === 'zh'
+          ? '网络错误，请稍后重试。'
+          : 'Network error, please try again later.';
+        responseDiv.textContent = errorText;
         console.error('AI request failed:', error);
       }
 
@@ -1643,12 +1734,18 @@ Step 3: 验证与迭代
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(currentResponse);
-        utterance.lang = 'zh-CN';
+        
+        // 根据检测到的语言设置TTS语言
+        utterance.lang = detectedLanguage === 'zh' ? 'zh-CN' : 'en-US';
         utterance.rate = 0.9;
         utterance.pitch = 1;
+        
         window.speechSynthesis.speak(utterance);
       } else {
-        alert('您的浏览器不支持语音朗读功能');
+        const errorMsg = detectedLanguage === 'zh'
+          ? '您的浏览器不支持语音朗读功能'
+          : 'Your browser does not support text-to-speech';
+        alert(errorMsg);
       }
     }
 
