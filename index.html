@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDD 规格驱动开发学院</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #1a1a2e;
+      --secondary: #16213e;
+      --accent: #0f4c75;
+      --highlight: #3282b8;
+      --light: #bbe1fa;
+      --text: #e8f1f5;
+      --code-bg: #0d1117;
+      --success: #2ea043;
+      --warning: #f85149;
+    }
+
+    body {
+      font-family: 'Crimson Pro', serif;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(15, 76, 117, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(50, 130, 184, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      text-align: center;
+      padding: 60px 20px 40px;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      background: linear-gradient(45deg, var(--light), var(--highlight));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      color: var(--light);
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 40px 0;
+      animation: fadeIn 1s ease-out 0.3s backwards;
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      background: rgba(15, 76, 117, 0.3);
+      border: 2px solid var(--accent);
+      color: var(--light);
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+    }
+
+    .tab-btn:hover {
+      background: rgba(15, 76, 117, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(50, 130, 184, 0.3);
+    }
+
+    .tab-btn.active {
+      background: var(--highlight);
+      border-color: var(--light);
+      color: white;
+      box-shadow: 0 4px 15px rgba(50, 130, 184, 0.5);
+    }
+
+    .lesson {
+      background: rgba(22, 33, 62, 0.6);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(50, 130, 184, 0.3);
+      border-radius: 16px;
+      padding: 40px;
+      margin: 30px 0;
+      display: none;
+      animation: slideIn 0.5s ease-out;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .lesson.active {
+      display: block;
+    }
+
+    .lesson h2 {
+      font-size: 2.2rem;
+      margin-bottom: 25px;
+      color: var(--light);
+      border-bottom: 3px solid var(--highlight);
+      padding-bottom: 15px;
+    }
+
+    .lesson h3 {
+      font-size: 1.6rem;
+      margin: 30px 0 15px;
+      color: var(--highlight);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lesson h3::before {
+      content: '▸';
+      color: var(--accent);
+      font-size: 1.4rem;
+    }
+
+    .lesson p {
+      margin: 15px 0;
+      font-size: 1.15rem;
+      line-height: 1.8;
+    }
+
+    .lesson ul {
+      margin: 15px 0 15px 30px;
+      font-size: 1.1rem;
+    }
+
+    .lesson li {
+      margin: 10px 0;
+      padding-left: 10px;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--code-bg);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.95em;
+      color: var(--light);
+      border: 1px solid var(--accent);
+    }
+
+    pre {
+      background: var(--code-bg);
+      padding: 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 20px 0;
+      border-left: 4px solid var(--highlight);
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      border: none;
+      display: block;
+      line-height: 1.6;
+    }
+
+    .quiz-section, .case-section {
+      background: rgba(15, 76, 117, 0.2);
+      padding: 30px;
+      border-radius: 12px;
+      margin: 30px 0;
+      border: 2px solid var(--accent);
+    }
+
+    .quiz-section h3, .case-section h3 {
+      color: var(--light);
+      margin-bottom: 20px;
+    }
+
+    .question {
+      background: rgba(22, 33, 62, 0.8);
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid var(--highlight);
+    }
+
+    .question h4 {
+      color: var(--light);
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: rgba(15, 76, 117, 0.3);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .option:hover {
+      background: rgba(15, 76, 117, 0.5);
+      border-color: var(--highlight);
+    }
+
+    .option input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .check-btn {
+      padding: 12px 30px;
+      background: var(--highlight);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 15px;
+    }
+
+    .check-btn:hover {
+      background: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(50, 130, 184, 0.4);
+    }
+
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 6px;
+      font-weight: 600;
+      display: none;
+    }
+
+    .result.correct {
+      background: rgba(46, 160, 67, 0.2);
+      border: 2px solid var(--success);
+      color: var(--success);
+      display: block;
+    }
+
+    .result.incorrect {
+      background: rgba(248, 81, 73, 0.2);
+      border: 2px solid var(--warning);
+      color: var(--warning);
+      display: block;
+    }
+
+    .case-study {
+      background: rgba(13, 17, 23, 0.6);
+      padding: 25px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid var(--success);
+    }
+
+    .case-study h4 {
+      color: var(--success);
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .references {
+      background: rgba(187, 225, 250, 0.05);
+      padding: 25px;
+      border-radius: 8px;
+      margin: 30px 0;
+      border: 2px dashed var(--light);
+    }
+
+    .references h3 {
+      color: var(--light);
+      margin-bottom: 15px;
+    }
+
+    .references ul {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .references li {
+      margin: 12px 0;
+      padding: 10px;
+      background: rgba(15, 76, 117, 0.2);
+      border-radius: 6px;
+    }
+
+    .references a {
+      color: var(--highlight);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .references a:hover {
+      color: var(--light);
+      text-decoration: underline;
+    }
+
+    .ai-assistant {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 1000;
+    }
+
+    .ai-toggle {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--highlight), var(--accent));
+      border: 3px solid var(--light);
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(50, 130, 184, 0.5);
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ai-toggle:hover {
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 12px 40px rgba(50, 130, 184, 0.7);
+    }
+
+    .ai-panel {
+      position: fixed;
+      bottom: 120px;
+      right: 30px;
+      width: 400px;
+      max-width: calc(100vw - 60px);
+      background: rgba(22, 33, 62, 0.95);
+      backdrop-filter: blur(20px);
+      border: 2px solid var(--highlight);
+      border-radius: 16px;
+      padding: 25px;
+      display: none;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.3s ease-out;
+    }
+
+    .ai-panel.active {
+      display: block;
+    }
+
+    .ai-panel h3 {
+      margin-bottom: 15px;
+      color: var(--light);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    #userInput {
+      flex: 1;
+      padding: 12px;
+      background: rgba(13, 17, 23, 0.8);
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: 'Crimson Pro', serif;
+    }
+
+    #userInput:focus {
+      outline: none;
+      border-color: var(--highlight);
+    }
+
+    .voice-btn, .send-btn {
+      padding: 12px 18px;
+      background: var(--highlight);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+    }
+
+    .voice-btn:hover, .send-btn:hover {
+      background: var(--accent);
+      transform: scale(1.05);
+    }
+
+    .voice-btn.recording {
+      background: var(--warning);
+      animation: pulse 1s infinite;
+    }
+
+    #aiResponse {
+      background: rgba(13, 17, 23, 0.6);
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      min-height: 100px;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid var(--accent);
+    }
+
+    .tts-btn {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: var(--success);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      display: none;
+    }
+
+    .tts-btn:hover {
+      background: #26843a;
+    }
+
+    .tts-btn.active {
+      display: inline-block;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2.5rem; }
+      .subtitle { font-size: 1.1rem; }
+      .lesson { padding: 25px; }
+      .lesson h2 { font-size: 1.8rem; }
+      .ai-panel { width: calc(100vw - 40px); right: 20px; }
+      .ai-toggle { width: 60px; height: 60px; font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>SDD 规格驱动开发学院</h1>
+      <p>天津财经大学统计学院教授  龚凤乾</p>
+      <p class="subtitle">Spec-Driven Development · 从需求到实现的系统化方法论</p>
+    </header>
+
+    <div class="nav-tabs">
+      <button class="tab-btn active" data-lesson="1">第1讲</button>
+      <button class="tab-btn" data-lesson="2">第2讲</button>
+      <button class="tab-btn" data-lesson="3">第3讲</button>
+      <button class="tab-btn" data-lesson="4">第4讲</button>
+      <button class="tab-btn" data-lesson="5">第5讲</button>
+      <button class="tab-btn" data-lesson="6">第6讲</button>
+      <button class="tab-btn" data-lesson="7">第7讲</button>
+      <button class="tab-btn" data-lesson="8">第8讲</button>
+    </div>
+
+    <!-- 第1讲 -->
+    <div class="lesson active" id="lesson1">
+      <h2>第1讲：什么是SDD？</h2>
+      
+      <p>Spec-Driven Development（规格驱动开发）是一种以<strong>明确规格说明</strong>为核心的软件开发方法论。与传统的边写边改不同，SDD强调先定义清晰的规格（Specification），再进行实现。</p>
+
+      <h3>核心理念</h3>
+      <ul>
+        <li><strong>规格先行</strong>：在编码前明确定义系统行为、接口、数据结构</li>
+        <li><strong>契约明确</strong>：通过规格文档建立开发者、测试者、用户之间的共识</li>
+        <li><strong>可验证性</strong>：规格可被转化为测试用例，确保实现符合预期</li>
+        <li><strong>减少返工</strong>：提前发现需求不一致，降低后期修改成本</li>
+      </ul>
+
+      <h3>SDD vs Vibe Coding</h3>
+      <p><strong>Vibe Coding</strong>（直觉编程）适合快速原型、探索性开发，但容易导致：</p>
+      <ul>
+        <li>需求理解偏差</li>
+        <li>代码结构混乱</li>
+        <li>难以维护和扩展</li>
+      </ul>
+      <p><strong>SDD</strong>通过规格文档解决这些问题，适合需要严谨性的项目。</p>
+
+      <h3>简单示例</h3>
+      <pre><code>// Vibe Coding 风格
+function processData(data) {
+  // 直接开始写逻辑，边想边写
+  let result = [];
+  for (let item of data) {
+    if (item.value > 10) {
+      result.push(item.name);
+    }
+  }
+  return result;
+}
+
+// SDD 风格
+/**
+ * 规格：处理数据集合
+ * 输入：data: Array<{name: string, value: number}>
+ * 输出：Array<string> - 所有value>10的name集合
+ * 前置条件：data不为null
+ * 后置条件：返回数组已排序
+ */
+function processData(data) {
+  if (!data) throw new Error('Invalid input');
+  return data
+    .filter(item => item.value > 10)
+    .map(item => item.name)
+    .sort();
+}</code></pre>
+
+      <div class="quiz-section">
+        <h3>📝 随堂小考</h3>
+        <div class="question">
+          <h4>1. SDD的核心优势是什么？</h4>
+          <div class="options">
+            <label class="option">
+              <input type="radio" name="q1" value="A">
+              <span>A. 编码速度更快</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q1" value="B">
+              <span>B. 提前明确需求，减少返工</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q1" value="C">
+              <span>C. 不需要写文档</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q1" value="D">
+              <span>D. 可以随意修改设计</span>
+            </label>
+          </div>
+          <button class="check-btn" onclick="checkAnswer('q1', 'B', this)">提交答案</button>
+          <div class="result"></div>
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>💼 实战案例</h3>
+        <div class="case-study">
+          <h4>场景：开发用户注册API</h4>
+          <p><strong>Vibe方式</strong>：直接写代码，发现密码加密忘了，返回格式不统一...</p>
+          <p><strong>SDD方式</strong>：</p>
+          <pre><code>规格文档：
+POST /api/register
+输入：{ email: string, password: string }
+验证：email格式有效，password≥8字符
+处理：密码BCrypt加密，存储到数据库
+输出：{ success: boolean, userId?: string, error?: string }
+错误码：400(参数错误), 409(邮箱已存在), 500(服务器错误)</code></pre>
+          <p><strong>结果</strong>：开发、测试、前端都按同一规格工作，零沟通成本！</p>
+        </div>
+      </div>
+
+      <div class="references">
+        <h3>📚 参考资料</h3>
+        <ul>
+          <li>🇨🇳 中文：<a href="https://www.cnblogs.com/strick/p/16628713.html" target="_blank">软件工程中的规格说明方法</a></li>
+          <li>🇺🇸 English: <a href="https://en.wikipedia.org/wiki/Specification_(technical_standard)" target="_blank">Specification (Technical Standard) - Wikipedia</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 第2讲 -->
+    <div class="lesson" id="lesson2">
+      <h2>第2讲：编写第一份规格文档</h2>
+      
+      <p>一份好的规格文档应包含：<strong>输入、输出、前置条件、后置条件、异常处理</strong>。</p>
+
+      <h3>规格文档结构</h3>
+      <pre><code>功能名称：[简洁描述]
+目的：[解决什么问题]
+输入参数：
+  - 参数1: 类型 - 说明
+  - 参数2: 类型 - 说明
+前置条件：[调用前必须满足的状态]
+处理逻辑：[核心步骤]
+输出结果：[返回什么]
+后置条件：[调用后系统状态]
+异常处理：[可能的错误及处理方式]</code></pre>
+
+      <h3>实例：计算器的加法功能</h3>
+      <pre><code>功能名称：add(a, b)
+目的：计算两个数字的和
+输入参数：
+  - a: number - 第一个加数
+  - b: number - 第二个加数
+前置条件：a和b均为有效数字
+处理逻辑：返回a + b的结果
+输出结果：number - 两数之和
+后置条件：无副作用，不改变全局状态
+异常处理：
+  - 若a或b非数字，抛出TypeError
+  - 若结果溢出，返回Infinity</code></pre>
+
+      <h3>关键要素</h3>
+      <ul>
+        <li><strong>精确性</strong>：避免模糊词汇如"大概"、"可能"</li>
+        <li><strong>完整性</strong>：覆盖所有输入情况和边界条件</li>
+        <li><strong>可测性</strong>：每条规格都能转化为测试用例</li>
+      </ul>
+
+      <div class="quiz-section">
+        <h3>📝 随堂小考</h3>
+        <div class="question">
+          <h4>2. 规格文档必须包含哪些核心部分？</h4>
+          <div class="options">
+            <label class="option">
+              <input type="radio" name="q2" value="A">
+              <span>A. 只需要输入和输出</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q2" value="B">
+              <span>B. 输入、输出、前后置条件、异常处理</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q2" value="C">
+              <span>C. 代码注释即可</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q2" value="D">
+              <span>D. 只需要功能描述</span>
+            </label>
+          </div>
+          <button class="check-btn" onclick="checkAnswer('q2', 'B', this)">提交答案</button>
+          <div class="result"></div>
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>💼 实战案例</h3>
+        <div class="case-study">
+          <h4>场景：电商购物车结算功能</h4>
+          <p><strong>糟糕的规格</strong>："计算购物车总价，考虑折扣"</p>
+          <p><strong>优秀的规格</strong>：</p>
+          <pre><code>功能：calculateCartTotal(items, coupon)
+输入：
+  - items: CartItem[] (商品列表)
+  - coupon: {type: 'percent'|'fixed', value: number} | null
+前置条件：items非空，价格>0
+逻辑：
+  1. 计算商品小计：sum(item.price * item.quantity)
+  2. 应用优惠券：
+     - percent: 小计 * (1 - value/100)
+     - fixed: max(小计 - value, 0)
+  3. 四舍五入到2位小数
+输出：{subtotal: number, discount: number, total: number}
+异常：items为空返回null，coupon无效忽略</code></pre>
+        </div>
+      </div>
+
+      <div class="references">
+        <h3>📚 参考资料</h3>
+        <ul>
+          <li>🇨🇳 中文：<a href="https://www.zhihu.com/question/23444990" target="_blank">如何编写技术规格文档 - 知乎</a></li>
+          <li>🇺🇸 English: <a href="https://stackoverflow.blog/2020/04/06/a-practical-guide-to-writing-technical-specs/" target="_blank">A Practical Guide to Writing Technical Specs</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 第3讲 -->
+    <div class="lesson" id="lesson3">
+      <h2>第3讲：从规格到测试用例</h2>
+      
+      <p>规格文档的价值在于<strong>可验证性</strong>。每条规格都应能转化为自动化测试。</p>
+
+      <h3>TDD与SDD的结合</h3>
+      <p>Test-Driven Development（测试驱动开发）与SDD天然契合：</p>
+      <ul>
+        <li>规格定义预期行为</li>
+        <li>测试验证实现是否符合规格</li>
+        <li>形成"规格→测试→实现"的闭环</li>
+      </ul>
+
+      <h3>示例：将规格转为测试</h3>
+      <pre><code>// 规格
+function divide(a: number, b: number): number
+// 返回a除以b的结果
+// 前置条件：b ≠ 0
+// 异常：b=0时抛出DivisionByZeroError
+
+// 对应测试
+describe('divide', () => {
+  test('正常除法', () => {
+    expect(divide(10, 2)).toBe(5);
+  });
+  
+  test('小数结果', () => {
+    expect(divide(7, 3)).toBeCloseTo(2.333, 3);
+  });
+  
+  test('除以零抛出异常', () => {
+    expect(() => divide(5, 0))
+      .toThrow(DivisionByZeroError);
+  });
+  
+  test('负数处理', () => {
+    expect(divide(-10, 2)).toBe(-5);
+  });
+});</code></pre>
+
+      <h3>测试覆盖要点</h3>
+      <ul>
+        <li><strong>正常路径</strong>：典型输入的预期输出</li>
+        <li><strong>边界条件</strong>：最大值、最小值、零、空值</li>
+        <li><strong>异常路径</strong>：错误输入的异常处理</li>
+        <li><strong>状态变化</strong>：验证前后置条件</li>
+      </ul>
+
+      <div class="quiz-section">
+        <h3>📝 随堂小考</h3>
+        <div class="question">
+          <h4>3. 为什么SDD强调测试的可验证性？</h4>
+          <div class="options">
+            <label class="option">
+              <input type="radio" name="q3" value="A">
+              <span>A. 测试可以自动生成代码</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q3" value="B">
+              <span>B. 确保实现完全符合规格定义</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q3" value="C">
+              <span>C. 测试可以替代文档</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q3" value="D">
+              <span>D. 不需要写规格</span>
+            </label>
+          </div>
+          <button class="check-btn" onclick="checkAnswer('q3', 'B', this)">提交答案</button>
+          <div class="result"></div>
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>💼 实战案例</h3>
+        <div class="case-study">
+          <h4>场景：密码强度验证器</h4>
+          <p><strong>规格</strong>：</p>
+          <pre><code>validatePassword(pwd: string): {valid: boolean, errors: string[]}
+要求：8-20字符，含大小写字母、数字、特殊符号至少3类
+返回：valid=true表示通过，errors列出所有不满足的条件</code></pre>
+          <p><strong>测试用例</strong>：</p>
+          <pre><code>test('强密码', () => 
+  expect(validatePassword('Abc123!@')).toEqual({valid:true, errors:[]})
+);
+test('太短', () => 
+  expect(validatePassword('Ab1!')).toHaveProperty('valid', false)
+);
+test('缺少数字', () => 
+  expect(validatePassword('Abcdefg!')).toHaveProperty('errors')
+);</code></pre>
+        </div>
+      </div>
+
+      <div class="references">
+        <h3>📚 参考资料</h3>
+        <ul>
+          <li>🇨🇳 中文：<a href="https://www.ruanyifeng.com/blog/2015/04/test-driven-development.html" target="_blank">测试驱动开发（TDD）- 阮一峰</a></li>
+          <li>🇺🇸 English: <a href="https://martinfowler.com/bliki/TestDrivenDevelopment.html" target="_blank">Test-Driven Development - Martin Fowler</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 第4讲 -->
+    <div class="lesson" id="lesson4">
+      <h2>第4讲：接口设计与API规格</h2>
+      
+      <p>API是系统对外的契约，SDD在接口设计中尤为重要。清晰的API规格是前后端协作的基础。</p>
+
+      <h3>RESTful API规格要素</h3>
+      <pre><code>端点：POST /api/users
+描述：创建新用户
+请求头：Content-Type: application/json
+请求体：
+{
+  "username": string (3-20字符，字母数字),
+  "email": string (有效邮箱),
+  "password": string (8+字符)
+}
+响应：
+  201 Created: {"id": string, "username": string}
+  400 Bad Request: {"error": string, "fields": string[]}
+  409 Conflict: {"error": "用户名已存在"}
+  500 Internal Server Error: {"error": "服务器错误"}
+限流：每IP 100次/小时
+认证：无需（公开端点）</code></pre>
+
+      <h3>OpenAPI/Swagger规范</h3>
+      <p>使用标准化工具描述API：</p>
+      <pre><code>openapi: 3.0.0
+paths:
+  /users:
+    post:
+      summary: 创建用户
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 20
+      responses:
+        '201':
+          description: 用户创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'</code></pre>
+
+      <h3>设计原则</h3>
+      <ul>
+        <li><strong>一致性</strong>：命名、错误码、响应格式统一</li>
+        <li><strong>版本控制</strong>：/v1/users 便于未来迭代</li>
+        <li><strong>幂等性</strong>：PUT/DELETE操作可重复执行</li>
+        <li><strong>错误详细</strong>：提供可操作的错误信息</li>
+      </ul>
+
+      <div class="quiz-section">
+        <h3>📝 随堂小考</h3>
+        <div class="question">
+          <h4>4. API规格中最重要的是什么？</h4>
+          <div class="options">
+            <label class="option">
+              <input type="radio" name="q4" value="A">
+              <span>A. 响应速度越快越好</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q4" value="B">
+              <span>B. 明确的请求/响应格式和错误处理</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q4" value="C">
+              <span>C. 使用最新的技术栈</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q4" value="D">
+              <span>D. 不需要文档</span>
+            </label>
+          </div>
+          <button class="check-btn" onclick="checkAnswer('q4', 'B', this)">提交答案</button>
+          <div class="result"></div>
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>💼 实战案例</h3>
+        <div class="case-study">
+          <h4>场景：图片上传API设计</h4>
+          <p><strong>不明确的设计</strong>："POST /upload 上传文件"</p>
+          <p><strong>SDD规格</strong>：</p>
+          <pre><code>POST /api/v1/images
+Content-Type: multipart/form-data
+参数：
+  - file: File (必须, 5MB以内, jpg/png/gif)
+  - alt: string (可选, 图片描述)
+成功响应 (200):
+{
+  "id": "img_abc123",
+  "url": "https://cdn.example.com/abc123.jpg",
+  "size": 1024000,
+  "format": "jpeg"
+}
+错误：
+  413: 文件过大
+  415: 不支持的格式
+  429: 超过每日上传限制(100张/用户)</code></pre>
+          <p><strong>好处</strong>：前端知道如何处理，后端有清晰的实现目标，测试有明确的验证点！</p>
+        </div>
+      </div>
+
+      <div class="references">
+        <h3>📚 参考资料</h3>
+        <ul>
+          <li>🇨🇳 中文：<a href="https://swagger.io/docs/specification/about/" target="_blank">OpenAPI规范中文指南</a></li>
+          <li>🇺🇸 English: <a href="https://restfulapi.net/" target="_blank">REST API Tutorial</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 第5讲 -->
+    <div class="lesson" id="lesson5">
+      <h2>第5讲：数据模型与Schema设计</h2>
+      
+      <p>数据是系统的核心资产，明确的数据模型规格能防止数据不一致、类型错误等问题。</p>
+
+      <h3>数据模型规格要素</h3>
+      <pre><code>模型名称：User
+描述：系统用户实体
+字段：
+  - id: UUID (主键, 自动生成, 不可变)
+  - username: string (唯一, 3-20字符, 索引)
+  - email: string (唯一, 邮箱格式, 索引)
+  - passwordHash: string (BCrypt加密, 不可查询)
+  - createdAt: DateTime (自动记录)
+  - updatedAt: DateTime (自动更新)
+  - status: enum('active', 'suspended', 'deleted')
+约束：
+  - username和email唯一性
+  - 删除用户时软删除(status='deleted')
+关系：
+  - User hasMany Posts (一对多)
+  - User hasMany Roles (多对多)</code></pre>
+
+      <h3>Schema验证</h3>
+      <p>使用工具确保数据有效性：</p>
+      <pre><code>// Zod示例
+import { z } from 'zod';
+
+const UserSchema = z.object({
+  username: z.string().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/),
+  email: z.string().email(),
+  password: z.string().min(8),
+  age: z.number().int().positive().optional()
+});
+
+// 运行时验证
+const result = UserSchema.safeParse(inputData);
+if (!result.success) {
+  console.error(result.error.errors);
+}</code></pre>
+
+      <h3>迁移与版本控制</h3>
+      <p>数据模型变更需要迁移脚本：</p>
+      <pre><code>-- Migration: 添加用户头像字段
+-- Version: 2024-01-15-add-avatar
+ALTER TABLE users ADD COLUMN avatar_url VARCHAR(255);
+ALTER TABLE users ADD COLUMN avatar_updated_at TIMESTAMP;
+
+-- Rollback
+ALTER TABLE users DROP COLUMN avatar_url;
+ALTER TABLE users DROP COLUMN avatar_updated_at;</code></pre>
+
+      <div class="quiz-section">
+        <h3>📝 随堂小考</h3>
+        <div class="question">
+          <h4>5. 为什么要使用Schema验证？</h4>
+          <div class="options">
+            <label class="option">
+              <input type="radio" name="q5" value="A">
+              <span>A. 让代码看起来更复杂</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q5" value="B">
+              <span>B. 在运行时捕获数据类型错误，保证数据质量</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q5" value="C">
+              <span>C. 替代数据库</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q5" value="D">
+              <span>D. 加快查询速度</span>
+            </label>
+          </div>
+          <button class="check-btn" onclick="checkAnswer('q5', 'B', this)">提交答案</button>
+          <div class="result"></div>
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>💼 实战案例</h3>
+        <div class="case-study">
+          <h4>场景：电商订单数据模型</h4>
+          <p><strong>问题</strong>：订单状态混乱，金额字段类型不一致，导致计算错误。</p>
+          <p><strong>SDD解决方案</strong>：</p>
+          <pre><code>模型：Order
+字段：
+  - id: UUID
+  - userId: UUID (外键 → users.id)
+  - status: enum('pending','paid','shipped','completed','cancelled')
+  - items: OrderItem[] (JSON, 验证非空)
+  - subtotal: Decimal(10,2) (小计, 精确到分)
+  - tax: Decimal(10,2)
+  - shipping: Decimal(10,2)
+  - total: Decimal(10,2) (计算属性: subtotal+tax+shipping)
+  - createdAt: DateTime
+约束：
+  - total必须 = subtotal + tax + shipping
+  - status转换规则：pending→paid→shipped→completed
+  - cancelled状态不可逆
+验证：
+  - 使用Decimal避免浮点误差
+  - 状态机模式控制流转
+  - 金额字段禁止手动修改，通过触发器计算</code></pre>
+        </div>
+      </div>
+
+      <div class="references">
+        <h3>📚 参考资料</h3>
+        <ul>
+          <li>🇨🇳 中文：<a href="https://juejin.cn/post/7038970528592453663" target="_blank">数据库Schema设计最佳实践 - 掘金</a></li>
+          <li>🇺🇸 English: <a href="https://github.com/colinhacks/zod" target="_blank">Zod - TypeScript Schema Validation</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 第6讲 -->
+    <div class="lesson" id="lesson6">
+      <h2>第6讲：并发与状态管理规格</h2>
+      
+      <p>现代应用常涉及并发操作，清晰的并发规格能防止竞态条件、死锁等问题。</p>
+
+      <h3>并发场景规格要素</h3>
+      <pre><code>功能：库存扣减
+场景：多个用户同时购买同一商品
+并发问题：库存超卖
+解决方案：
+  1. 数据库层：乐观锁(version字段)或悲观锁(SELECT FOR UPDATE)
+  2. 应用层：Redis分布式锁
+规格：
+  - 读取库存时获取锁
+  - 扣减库存时检查version
+  - 若version不匹配，重试或返回失败
+  - 成功后释放锁
+保证：同一时刻只有一个事务能修改库存</code></pre>
+
+      <h3>状态机规格</h3>
+      <p>复杂状态转换需明确定义：</p>
+      <pre><code>订单状态机：
+初始状态：CREATED
+允许转换：
+  CREATED → PAID (支付成功)
+  CREATED → CANCELLED (用户取消)
+  PAID → SHIPPED (商家发货)
+  SHIPPED → COMPLETED (用户确认收货)
+  PAID/SHIPPED → REFUNDING (申请退款)
+  REFUNDING → REFUNDED (退款完成)
+不允许转换：
+  COMPLETED → PAID (已完成不可回退)
+  CANCELLED → PAID (已取消不可支付)
+副作用：
+  PAID → 扣减库存, 发送邮件
+  REFUNDED → 恢复库存, 记录日志</code></pre>
+
+      <h3>分布式一致性</h3>
+      <ul>
+        <li><strong>ACID事务</strong>：单数据库强一致</li>
+        <li><strong>Saga模式</strong>：分布式事务补偿机制</li>
+        <li><strong>最终一致性</strong>：异步处理，容忍短暂不一致</li>
+      </ul>
+
+      <div class="quiz-section">
+        <h3>📝 随堂小考</h3>
+        <div class="question">
+          <h4>6. 为什么并发操作需要明确规格？</h4>
+          <div class="options">
+            <label class="option">
+              <input type="radio" name="q6" value="A">
+              <span>A. 并发会让代码变慢</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q6" value="B">
+              <span>B. 防止竞态条件、数据不一致等问题</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q6" value="C">
+              <span>C. 并发不需要特殊处理</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q6" value="D">
+              <span>D. 单线程就能解决所有问题</span>
+            </label>
+          </div>
+          <button class="check-btn" onclick="checkAnswer('q6', 'B', this)">提交答案</button>
+          <div class="result"></div>
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>💼 实战案例</h3>
+        <div class="case-study">
+          <h4>场景：秒杀系统</h4>
+          <p><strong>问题</strong>：1000件商品，10000人同时抢购，如何保证不超卖？</p>
+          <p><strong>SDD方案</strong>：</p>
+          <pre><code>规格：
+1. 预热阶段：
+   - 将库存加载到Redis: SET stock:item_123 1000
+   - 设置过期时间：1小时
+   
+2. 抢购阶段：
+   - Lua脚本保证原子性：
+     if redis.call('get', KEYS[1]) > 0 then
+       redis.call('decr', KEYS[1])
+       return 1
+     else
+       return 0
+     end
+   - 成功返回1，失败返回0
+   
+3. 后置处理：
+   - 异步写入数据库订单
+   - 使用消息队列削峰
+   
+保证：
+   - Redis原子操作防止超卖
+   - 单点Redis性能瓶颈？→ Redis Cluster
+   - 数据库延迟？→ 异步处理，最终一致性</code></pre>
+        </div>
+      </div>
+
+      <div class="references">
+        <h3>📚 参考资料</h3>
+        <ul>
+          <li>🇨🇳 中文：<a href="https://www.cnblogs.com/rjzheng/p/9134984.html" target="_blank">分布式锁的实现与应用 - 博客园</a></li>
+          <li>🇺🇸 English: <a href="https://martinfowler.com/articles/patterns-of-distributed-systems/" target="_blank">Patterns of Distributed Systems</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 第7讲 -->
+    <div class="lesson" id="lesson7">
+      <h2>第7讲：性能与可扩展性规格</h2>
+      
+      <p>性能指标也是规格的一部分。SDD不仅定义功能，还定义<strong>非功能性需求</strong>（NFR）。</p>
+
+      <h3>性能规格要素</h3>
+      <pre><code>功能：用户登录
+性能需求：
+  - 响应时间：P95 < 200ms, P99 < 500ms
+  - 吞吐量：支持 1000 req/s
+  - 并发用户：10000
+  - 可用性：99.9% (每月停机 < 43分钟)
+测试方法：
+  - 压力测试：Apache JMeter / k6
+  - 监控指标：Prometheus + Grafana
+  - 报警阈值：响应时间 > 500ms 持续5分钟
+优化策略：
+  - 数据库索引：username, email
+  - 缓存：Redis存储session, TTL=30分钟
+  - CDN：静态资源加速
+  - 降级方案：高峰期关闭非核心功能</code></pre>
+
+      <h3>可扩展性设计</h3>
+      <ul>
+        <li><strong>水平扩展</strong>：无状态服务，通过负载均衡增加实例</li>
+        <li><strong>数据库分片</strong>：按用户ID范围分库</li>
+        <li><strong>读写分离</strong>：主库写，从库读</li>
+        <li><strong>微服务拆分</strong>：按业务领域解耦</li>
+      </ul>
+
+      <h3>容量规划规格</h3>
+      <pre><code>系统：电商平台
+预期流量：
+  - 日活用户：100万
+  - 高峰QPS：5000
+  - 数据增长：每天500万订单
+资源需求：
+  - Web服务器：20台(4核8G)
+  - 数据库：主1从2(16核64G)
+  - Redis：4台集群(8核32G)
+  - 存储：10TB (订单+日志)
+成本预算：$50000/月
+监控：CPU > 70%, 内存 > 80% 触发自动扩容</code></pre>
+
+      <div class="quiz-section">
+        <h3>📝 随堂小考</h3>
+        <div class="question">
+          <h4>7. 性能规格中P95/P99是什么意思？</h4>
+          <div class="options">
+            <label class="option">
+              <input type="radio" name="q7" value="A">
+              <span>A. 95%和99%的用户满意度</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q7" value="B">
+              <span>B. 95%和99%的请求响应时间低于该阈值</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q7" value="C">
+              <span>C. 系统正常运行95%和99%的时间</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q7" value="D">
+              <span>D. 数据库查询命中率</span>
+            </label>
+          </div>
+          <button class="check-btn" onclick="checkAnswer('q7', 'B', this)">提交答案</button>
+          <div class="result"></div>
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>💼 实战案例</h3>
+        <div class="case-study">
+          <h4>场景：社交媒体Feed流性能优化</h4>
+          <p><strong>问题</strong>：用户关注500人，加载首页慢（3秒+）</p>
+          <p><strong>SDD性能规格</strong>：</p>
+          <pre><code>目标：首页加载 < 500ms (P95)
+方案：
+1. 推拉结合模式
+   - 大V发帖：推送到粉丝收件箱(Push)
+   - 普通用户发帖：实时拉取(Pull)
+   
+2. 缓存策略
+   - Redis存储最近20条Feed: ZSET按时间排序
+   - 预加载：用户登录时异步刷新Feed
+   
+3. 分页优化
+   - 游标分页，避免OFFSET深度翻页
+   - 每页20条，总量上限500条
+   
+4. 数据库优化
+   - 复合索引：(user_id, created_at)
+   - 读写分离：从库承载90%查询
+   
+测试验证：
+   - JMeter模拟10000用户并发
+   - 监控P95响应时间 < 500ms
+   - CPU使用率 < 60%</code></pre>
+        </div>
+      </div>
+
+      <div class="references">
+        <h3>📚 参考资料</h3>
+        <ul>
+          <li>🇨🇳 中文：<a href="https://time.geekbang.org/column/intro/100003901" target="_blank">性能工程高手课 - 极客时间</a></li>
+          <li>🇺🇸 English: <a href="https://www.brendangregg.com/blog/2020-07-15/systems-performance-2nd-edition.html" target="_blank">Systems Performance - Brendan Gregg</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 第8讲 -->
+    <div class="lesson" id="lesson8">
+      <h2>第8讲：SDD在AI时代的应用</h2>
+      
+      <p>AI编程工具兴起后，SDD变得更加重要——<strong>清晰的规格是AI生成高质量代码的前提</strong>。</p>
+
+      <h3>Prompt Engineering与SDD</h3>
+      <p>将需求转化为结构化规格，AI能更准确地生成代码：</p>
+      <pre><code>// 糟糕的Prompt
+"写一个用户注册功能"
+
+// 优秀的Prompt（SDD风格）
+"""
+创建用户注册API，规格如下：
+端点：POST /api/register
+输入：{ username: string(3-20), email: string, password: string(8+) }
+验证：
+  - username唯一，仅字母数字下划线
+  - email格式有效且唯一
+  - password需含大小写字母+数字
+处理：
+  - 使用bcrypt加密密码(saltRounds=10)
+  - 存储到PostgreSQL users表
+  - 返回JWT token (HS256, 7天过期)
+错误：
+  - 400: 参数验证失败，返回具体字段错误
+  - 409: 用户名/邮箱已存在
+  - 500: 数据库错误
+技术栈：Node.js + Express + Zod + Prisma
+"""</code></pre>
+
+      <h3>AI辅助的SDD流程</h3>
+      <ul>
+        <li><strong>需求分析</strong>：AI帮助细化模糊需求</li>
+        <li><strong>规格生成</strong>：从用户故事生成技术规格</li>
+        <li><strong>代码生成</strong>：基于规格生成实现</li>
+        <li><strong>测试生成</strong>：自动生成单元测试</li>
+        <li><strong>文档生成</strong>：从代码反向生成API文档</li>
+      </ul>
+
+      <h3>人机协作模式</h3>
+      <pre><code>1. 人类：定义业务需求和核心规格
+2. AI：生成详细技术规格和伪代码
+3. 人类：审查并修正规格
+4. AI：生成实现代码
+5. 人类：代码审查，运行测试
+6. AI：根据反馈迭代优化
+7. 人类：最终验收与部署</code></pre>
+
+      <h3>SDD vs Vibe Coding in AI Era</h3>
+      <table style="width:100%; border-collapse: collapse; margin: 20px 0;">
+        <thead>
+          <tr style="background: rgba(15,76,117,0.3);">
+            <th style="padding: 12px; border: 1px solid var(--accent);">维度</th>
+            <th style="padding: 12px; border: 1px solid var(--accent);">Vibe Coding</th>
+            <th style="padding: 12px; border: 1px solid var(--accent);">SDD</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding: 10px; border: 1px solid var(--accent);">提示词</td>
+            <td style="padding: 10px; border: 1px solid var(--accent);">模糊描述</td>
+            <td style="padding: 10px; border: 1px solid var(--accent);">结构化规格</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid var(--accent);">代码质量</td>
+            <td style="padding: 10px; border: 1px solid var(--accent);">随机性大</td>
+            <td style="padding: 10px; border: 1px solid var(--accent);">可预测、一致</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid var(--accent);">迭代效率</td>
+            <td style="padding: 10px; border: 1px solid var(--accent);">多次返工</td>
+            <td style="padding: 10px; border: 1px solid var(--accent);">一次生成接近目标</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid var(--accent);">可维护性</td>
+            <td style="padding: 10px; border: 1px solid var(--accent);">难以理解</td>
+            <td style="padding: 10px; border: 1px solid var(--accent);">文档完整</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>未来趋势</h3>
+      <p>随着AI能力提升，SDD将演进为：</p>
+      <ul>
+        <li><strong>可执行规格</strong>：规格本身可运行测试</li>
+        <li><strong>形式化验证</strong>：数学证明代码正确性</li>
+        <li><strong>规格市场</strong>：复用高质量的规格模板</li>
+      </ul>
+
+      <div class="quiz-section">
+        <h3>📝 随堂小考</h3>
+        <div class="question">
+          <h4>8. 在AI编程时代，为什么SDD更重要？</h4>
+          <div class="options">
+            <label class="option">
+              <input type="radio" name="q8" value="A">
+              <span>A. AI不需要规格</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q8" value="B">
+              <span>B. 清晰规格让AI生成更准确的代码</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q8" value="C">
+              <span>C. SDD会被AI取代</span>
+            </label>
+            <label class="option">
+              <input type="radio" name="q8" value="D">
+              <span>D. 只需要自然语言描述</span>
+            </label>
+          </div>
+          <button class="check-btn" onclick="checkAnswer('q8', 'B', this)">提交答案</button>
+          <div class="result"></div>
+        </div>
+      </div>
+
+      <div class="case-section">
+        <h3>💼 实战案例</h3>
+        <div class="case-study">
+          <h4>场景：使用AI生成完整后端服务</h4>
+          <p><strong>任务</strong>：开发一个博客系统的后端API</p>
+          <p><strong>传统Vibe方式</strong>：</p>
+          <p>"AI，帮我写一个博客后端" → AI生成混乱代码 → 调试2天</p>
+          <p><strong>SDD方式</strong>：</p>
+          <pre><code>Step 1: 定义完整规格文档
+---
+系统：博客管理系统
+功能模块：
+1. 用户管理（注册/登录/权限）
+2. 文章管理（CRUD + 分类标签）
+3. 评论系统（嵌套回复 + 审核）
+
+技术栈：
+- 语言：TypeScript
+- 框架：NestJS
+- 数据库：PostgreSQL + Prisma
+- 认证：JWT
+- 缓存：Redis
+
+数据模型：
+User: id, username, email, passwordHash, role(admin/user)
+Post: id, title, content, authorId, status(draft/published)
+Comment: id, postId, userId, parentId, content, approved
+
+API端点：
+[详细的每个端点规格...]
+
+性能要求：
+- 文章列表查询 < 100ms
+- 支持10000日活
+
+---
+Step 2: 让AI生成代码
+"根据上述规格，生成完整的NestJS项目，包括：
+ - 完整的目录结构
+ - 所有Controller/Service/DTO
+ - Prisma Schema
+ - 单元测试
+ - OpenAPI文档"
+
+Step 3: 验证与迭代
+- AI生成基础代码
+- 人工审查关键逻辑
+- 运行测试套件
+- 根据测试结果调整
+
+结果：90%的代码一次生成正确，只需微调细节！</code></pre>
+        </div>
+      </div>
+
+      <div class="references">
+        <h3>📚 参考资料</h3>
+        <ul>
+          <li>🇨🇳 中文：<a href="https://zhuanlan.zhihu.com/p/646825207" target="_blank">AI编程时代的软件工程 - 知乎专栏</a></li>
+          <li>🇺🇸 English: <a href="https://github.blog/2023-06-20-how-to-write-better-prompts-for-github-copilot/" target="_blank">How to Write Better Prompts for GitHub Copilot</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI助手 -->
+  <div class="ai-assistant">
+    <button class="ai-toggle" onclick="toggleAI()">🤖</button>
+    <div class="ai-panel" id="aiPanel">
+      <h3>SDD智能助教</h3>
+      <div class="input-group">
+        <input type="text" id="userInput" placeholder="输入问题或点击语音...">
+        <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
+        <button class="send-btn" onclick="sendMessage()">📤</button>
+      </div>
+      <div id="aiResponse">我是你的SDD助教！有任何疑问随时问我 😊</div>
+      <button class="tts-btn" id="ttsBtn" onclick="speakResponse()">🔊 朗读回答</button>
+    </div>
+  </div>
+
+  <script>
+    // 切换课程
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.lesson').forEach(l => l.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('lesson' + btn.dataset.lesson).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    // 检查答案
+    function checkAnswer(questionName, correctAnswer, button) {
+      const selected = document.querySelector(`input[name="${questionName}"]:checked`);
+      const resultDiv = button.nextElementSibling;
+      
+      if (!selected) {
+        alert('请先选择一个答案！');
+        return;
+      }
+
+      if (selected.value === correctAnswer) {
+        resultDiv.textContent = '✅ 回答正确！很好地理解了这个概念！';
+        resultDiv.className = 'result correct';
+      } else {
+        resultDiv.textContent = '❌ 答案不正确，请重新思考或查看课程内容。';
+        resultDiv.className = 'result incorrect';
+      }
+    }
+
+    // AI助手
+    let isAIOpen = false;
+    let isRecording = false;
+    let recognition = null;
+    let currentResponse = '';
+
+    function toggleAI() {
+      isAIOpen = !isAIOpen;
+      document.getElementById('aiPanel').classList.toggle('active', isAIOpen);
+    }
+
+    // 初始化语音识别
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = 'zh-CN';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('userInput').value = transcript;
+        sendMessage();
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        alert('语音识别失败：' + event.error);
+        stopRecording();
+      };
+
+      recognition.onend = () => {
+        stopRecording();
+      };
+    }
+
+    function toggleVoice() {
+      if (!recognition) {
+        alert('您的浏览器不支持语音识别功能，请使用Chrome浏览器');
+        return;
+      }
+
+      if (isRecording) {
+        recognition.stop();
+      } else {
+        recognition.start();
+        isRecording = true;
+        document.getElementById('voiceBtn').classList.add('recording');
+        document.getElementById('voiceBtn').textContent = '⏹️';
+      }
+    }
+
+    function stopRecording() {
+      isRecording = false;
+      document.getElementById('voiceBtn').classList.remove('recording');
+      document.getElementById('voiceBtn').textContent = '🎤';
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('userInput');
+      const message = input.value.trim();
+      
+      if (!message) return;
+
+      const responseDiv = document.getElementById('aiResponse');
+      responseDiv.textContent = '思考中...';
+      document.getElementById('ttsBtn').classList.remove('active');
+
+      try {
+        const response = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+        currentResponse = data.reply || '抱歉，我暂时无法回答这个问题。';
+        responseDiv.textContent = currentResponse;
+        document.getElementById('ttsBtn').classList.add('active');
+      } catch (error) {
+        responseDiv.textContent = '网络错误，请稍后重试。';
+        console.error('AI request failed:', error);
+      }
+
+      input.value = '';
+    }
+
+    // TTS功能
+    function speakResponse() {
+      if (!currentResponse) return;
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(currentResponse);
+        utterance.lang = 'zh-CN';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        window.speechSynthesis.speak(utterance);
+      } else {
+        alert('您的浏览器不支持语音朗读功能');
+      }
+    }
+
+    // 回车发送
+    document.getElementById('userInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+</body>
+</html>

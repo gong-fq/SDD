@@ -1,0 +1,19 @@
+{
+  "name": "sdd-learning-academy",
+  "version": "1.0.0",
+  "description": "Spec-Driven Development 学习平台",
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build needed - static site'",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": [
+    "SDD",
+    "Spec-Driven Development",
+    "Software Engineering",
+    "Education"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
