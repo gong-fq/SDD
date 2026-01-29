@@ -82,6 +82,15 @@
       font-weight: 400;
     }
 
+    .author {
+      font-size: 1.1rem;
+      color: var(--light);
+      opacity: 0.85;
+      margin-top: 15px;
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+
     .nav-tabs {
       display: flex;
       gap: 10px;
@@ -567,6 +576,7 @@
     <header>
       <h1>SDD 规格驱动开发学院</h1>
       <p class="subtitle">Spec-Driven Development · 从需求到实现的系统化方法论</p>
+      <p class="author">天津财经大学统计学院教授&nbsp;&nbsp;&nbsp;&nbsp;龚凤乾</p>
     </header>
 
     <div class="nav-tabs">
@@ -1716,6 +1726,9 @@ Step 3: 验证与迭代
         
         responseDiv.textContent = currentResponse;
         document.getElementById('ttsBtn').classList.add('active');
+        
+        // 重置TTS按钮文本
+        updateTTSButton(false);
       } catch (error) {
         const errorText = messageLanguage === 'zh'
           ? '网络错误，请稍后重试。'
@@ -1728,17 +1741,69 @@ Step 3: 验证与迭代
     }
 
     // TTS功能
+    let isSpeaking = false;
+    
     function speakResponse() {
       if (!currentResponse) return;
 
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(currentResponse);
+        // 如果正在朗读，点击按钮停止
+        if (isSpeaking) {
+          window.speechSynthesis.cancel();
+          isSpeaking = false;
+          updateTTSButton(false);
+          return;
+        }
+
+        // 清理文本：移除各种符号，只保留文字和基本标点
+        let cleanText = currentResponse
+          // 移除Markdown符号
+          .replace(/[*_#`~\[\]]/g, '')
+          // 移除代码块标记
+          .replace(/```[\s\S]*?```/g, '')
+          // 移除HTML标签
+          .replace(/<[^>]*>/g, '')
+          // 移除特殊符号但保留基本标点
+          .replace(/[-–—]/g, ' ')  // 将各种横线替换为空格
+          .replace(/[•·]/g, ' ')   // 将列表符号替换为空格
+          .replace(/[(){}\[\]]/g, '') // 移除括号
+          // 移除多余空格
+          .replace(/\s+/g, ' ')
+          .trim();
+
+        // 如果清理后没有内容，不朗读
+        if (!cleanText) {
+          const errorMsg = detectedLanguage === 'zh'
+            ? '没有可朗读的文本内容'
+            : 'No text content to read';
+          alert(errorMsg);
+          return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
         
         // 根据检测到的语言设置TTS语言
         utterance.lang = detectedLanguage === 'zh' ? 'zh-CN' : 'en-US';
         utterance.rate = 0.9;
         utterance.pitch = 1;
+        
+        // 监听朗读开始
+        utterance.onstart = () => {
+          isSpeaking = true;
+          updateTTSButton(true);
+        };
+        
+        // 监听朗读结束
+        utterance.onend = () => {
+          isSpeaking = false;
+          updateTTSButton(false);
+        };
+        
+        // 监听朗读错误
+        utterance.onerror = () => {
+          isSpeaking = false;
+          updateTTSButton(false);
+        };
         
         window.speechSynthesis.speak(utterance);
       } else {
@@ -1746,6 +1811,22 @@ Step 3: 验证与迭代
           ? '您的浏览器不支持语音朗读功能'
           : 'Your browser does not support text-to-speech';
         alert(errorMsg);
+      }
+    }
+
+    // 更新TTS按钮状态
+    function updateTTSButton(speaking) {
+      const btn = document.getElementById('ttsBtn');
+      if (speaking) {
+        btn.textContent = detectedLanguage === 'zh' 
+          ? '⏹️ 停止朗读' 
+          : '⏹️ Stop Reading';
+        btn.style.background = 'var(--warning)';
+      } else {
+        btn.textContent = detectedLanguage === 'zh' 
+          ? '🔊 朗读回答' 
+          : '🔊 Read Aloud';
+        btn.style.background = 'var(--success)';
       }
     }
 
