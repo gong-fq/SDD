@@ -576,7 +576,7 @@
     <header>
       <h1>SDD 规格驱动开发学院</h1>
       <p class="subtitle">Spec-Driven Development · 从需求到实现的系统化方法论</p>
-      <p class="author">天津财经大学统计学院教授&nbsp;&nbsp;&nbsp;&nbsp;龚凤乾</p>
+      <p class="author">天津财经大学统计学院教授 &nbsp;&nbsp;&nbsp;&nbsp; 龚凤乾</p>
     </header>
 
     <div class="nav-tabs">
@@ -1708,11 +1708,22 @@ Step 3: 验证与迭代
       document.getElementById('ttsBtn').classList.remove('active');
 
       try {
+        // 添加30秒超时
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        
         const response = await fetch('/.netlify/functions/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message })
+          body: JSON.stringify({ message }),
+          signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`服务器返回错误: ${response.status}`);
+        }
 
         const data = await response.json();
         currentResponse = data.reply || (messageLanguage === 'zh' 
@@ -1730,9 +1741,20 @@ Step 3: 验证与迭代
         // 重置TTS按钮文本
         updateTTSButton(false);
       } catch (error) {
-        const errorText = messageLanguage === 'zh'
-          ? '网络错误，请稍后重试。'
-          : 'Network error, please try again later.';
+        let errorText;
+        if (error.name === 'AbortError') {
+          errorText = messageLanguage === 'zh'
+            ? '⏱️ 请求超时，请重试。如果问题持续，请检查网络连接。'
+            : '⏱️ Request timeout, please try again. If the problem persists, check your network connection.';
+        } else if (error.message.includes('504') || error.message.includes('502')) {
+          errorText = messageLanguage === 'zh'
+            ? '⚠️ 服务器网关超时。可能原因：\n• API密钥未配置\n• DeepSeek服务繁忙\n请稍后重试或联系管理员。'
+            : '⚠️ Gateway timeout. Possible reasons:\n• API key not configured\n• DeepSeek service busy\nPlease retry later or contact admin.';
+        } else {
+          errorText = messageLanguage === 'zh'
+            ? `❌ 网络错误：${error.message}\n请检查：\n1. 网络连接是否正常\n2. Netlify环境变量DEEPSEEK_API_KEY是否已配置\n3. API密钥是否有效`
+            : `❌ Network error: ${error.message}\nPlease check:\n1. Network connection\n2. DEEPSEEK_API_KEY in Netlify env vars\n3. API key validity`;
+        }
         responseDiv.textContent = errorText;
         console.error('AI request failed:', error);
       }

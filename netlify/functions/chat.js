@@ -64,17 +64,27 @@ Response style:
           { role: "system", content: systemPrompt },
           { role: "user", content: message }
         ],
-        max_tokens: 1000,
-        temperature: 0.7
+        max_tokens: 2000,  // 增加token数量
+        temperature: 0.5,   // 降低temperature加快响应
+        stream: false       // 确保不使用流式响应
       })
     });
 
     if (!response.ok) {
-      throw new Error(`DeepSeek API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`DeepSeek API error: ${response.status}`, errorText);
+      throw new Error(`DeepSeek API返回错误 ${response.status}: ${errorText.substring(0, 100)}`);
     }
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || 
+    
+    // 检查返回数据的有效性
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid API response:', data);
+      throw new Error('API返回了无效的数据格式');
+    }
+    
+    const reply = data.choices[0].message.content || 
       (language === 'zh' ? "抱歉，我暂时无法回答这个问题。" : "Sorry, I cannot answer this question at the moment.");
 
     return {
@@ -87,12 +97,19 @@ Response style:
     };
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Chat function error:', error);
     
-    // 尝试从错误中检测语言
-    const errorMessage = error.message || '';
-    const hasChinese = /[\u4e00-\u9fa5]/.test(errorMessage);
-    const language = hasChinese ? 'zh' : 'en';
+    // 从请求中尝试提取语言信息
+    let language = 'zh';
+    try {
+      if (event.body) {
+        const { message } = JSON.parse(event.body);
+        const hasChinese = /[\u4e00-\u9fa5]/.test(message);
+        language = hasChinese ? 'zh' : 'en';
+      }
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+    }
     
     return {
       statusCode: 500,
@@ -102,9 +119,10 @@ Response style:
       },
       body: JSON.stringify({ 
         reply: language === 'zh' 
-          ? "抱歉，服务暂时不可用。请稍后再试。" 
-          : "Sorry, the service is temporarily unavailable. Please try again later.",
-        error: error.message 
+          ? "抱歉，AI服务暂时不可用。可能的原因：\n1. API密钥未配置或已过期\n2. 网络连接问题\n3. DeepSeek服务暂时不可用\n\n请检查Netlify环境变量中的DEEPSEEK_API_KEY是否正确配置。" 
+          : "Sorry, the AI service is temporarily unavailable. Possible reasons:\n1. API key not configured or expired\n2. Network connection issues\n3. DeepSeek service temporarily unavailable\n\nPlease check if DEEPSEEK_API_KEY is correctly configured in Netlify environment variables.",
+        error: error.message,
+        language
       })
     };
   }
